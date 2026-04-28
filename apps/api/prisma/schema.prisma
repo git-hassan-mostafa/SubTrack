@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  TENANT_ADMIN
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum PricingRuleType {
+  FIXED
+  AMPERE_BASED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_MONEY
+  CHEQUE
+}
+
+model Tenant {
+  id             String          @id @default(uuid())
+  companyName    String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  users          User[]
+  customers      Customer[]
+  pricingRules   PricingRule[]
+  subscriptions  Subscription[]
+  invoices       Invoice[]
+  payments       Payment[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Customer {
+  id               String         @id @default(uuid())
+  tenantId         String
+  tenant           Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name             String
+  phone            String
+  address          String
+  latitude         Float?
+  longitude        Float?
+  locationAccuracy Float?
+  status           CustomerStatus @default(ACTIVE)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  subscriptions    Subscription[]
+  invoices         Invoice[]
+
+  @@index([tenantId])
+}
+
+model PricingRule {
+  id            String            @id @default(uuid())
+  tenantId      String
+  tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name          String
+  type          PricingRuleType
+  config        Json
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  subscriptions Subscription[]
+
+  @@index([tenantId])
+}
+
+model Subscription {
+  id            String             @id @default(uuid())
+  tenantId      String
+  tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId    String
+  customer      Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  planName      String
+  status        SubscriptionStatus
+  startDate     DateTime
+  endDate       DateTime?
+  pricingRuleId String
+  pricingRule   PricingRule        @relation(fields: [pricingRuleId], references: [id])
+  customRate    Float?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  invoices      Invoice[]
+
+  @@index([tenantId])
+  @@index([customerId])
+}
+
+model Invoice {
+  id                       String        @id @default(uuid())
+  tenantId                 String
+  tenant                   Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customerId               String
+  customer                 Customer      @relation(fields: [customerId], references: [id])
+  subscriptionId           String
+  subscription             Subscription  @relation(fields: [subscriptionId], references: [id])
+  invoiceNumber            Int
+  amount                   Float
+  status                   InvoiceStatus
+  dueDate                  DateTime
+  issuedDate               DateTime
+  paidDate                 DateTime?
+  notes                    String?
+  lastOverdueReminderSentAt DateTime?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  payments                 Payment[]
+
+  @@unique([tenantId, invoiceNumber])
+  @@index([tenantId])
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoiceId       String
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id])
+  amount          Float
+  method          PaymentMethod
+  referenceNumber String?
+  paymentDate     DateTime
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([tenantId])
+  @@index([invoiceId])
+}
