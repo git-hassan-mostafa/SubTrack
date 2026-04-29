@@ -1,5 +1,5 @@
+import { InvoiceStatus } from '@prisma/client';
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsDateString } from 'class-validator';
-import { InvoiceStatus } from '@subtrack/shared';
 
 export class CreateInvoiceDto {
   @IsString()

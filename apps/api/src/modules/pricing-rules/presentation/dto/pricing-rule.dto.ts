@@ -1,5 +1,5 @@
+import { PricingType } from '@prisma/client';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum } from 'class-validator';
-import { PricingType } from '@subtrack/shared';
 
 export class CreatePricingRuleDto {
   @IsString()

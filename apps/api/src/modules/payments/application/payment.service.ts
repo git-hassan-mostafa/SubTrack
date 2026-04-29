@@ -1,10 +1,10 @@
 import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PAYMENT_REPOSITORY, PaymentRepository } from '../domain/payment.repository';
+import { PAYMENT_REPOSITORY, type PaymentRepository } from '../domain/payment.repository';
 import { CreatePaymentDto } from '../presentation/dto/payment.dto';
-import { InvoiceStatus } from '@subtrack/shared';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaymentRecordedEvent } from '../../messaging/application/messaging.service';
+import { InvoiceStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
@@ -49,7 +49,7 @@ export class PaymentService {
     const payment = await this.paymentRepo.create({
       tenantId,
       invoiceId: invoice.id,
-      amount: dto.amount,
+      amount: new Prisma.Decimal(dto.amount),
       method: dto.method,
       referenceNumber: dto.referenceNumber ?? null,
       paymentDate,

@@ -6,7 +6,7 @@ import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { PaymentService } from '../../payments/application/payment.service';
-import { UserRole } from '@subtrack/shared';
+import { UserRole } from '@prisma/client';
 
 @Controller('customers')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -42,7 +42,11 @@ export class CustomersController {
 
   @Patch(':id')
   @Roles(UserRole.TENANT_ADMIN, UserRole.MANAGER, UserRole.OPERATOR)
-  update(@CurrentUser() user: any, @Param('id') id: string, @Body() updateCustomerDto: UpdateCustomerDto) {
+  update(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
     return this.customerService.update(id, user.tenantId, updateCustomerDto);
   }
 

@@ -1,4 +1,4 @@
-import { Tenant } from '@subtrack/shared';
+import { Tenant } from '@prisma/client';
 
 export const TENANT_REPOSITORY = 'TENANT_REPOSITORY';
 

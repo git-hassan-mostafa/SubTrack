@@ -1,5 +1,5 @@
+import { SubscriptionStatus } from '@prisma/client';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum, IsDateString } from 'class-validator';
-import { SubscriptionStatus } from '@subtrack/shared';
 
 export class CreateSubscriptionDto {
   @IsString()

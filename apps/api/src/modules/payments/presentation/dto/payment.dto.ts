@@ -1,5 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsDateString, IsNumber, Min } from 'class-validator';
-import { PaymentMethod } from '@subtrack/shared';
+import { PaymentMethod } from '@prisma/client';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+  IsNumber,
+  Min,
+} from 'class-validator';
 
 export class CreatePaymentDto {
   @IsString()

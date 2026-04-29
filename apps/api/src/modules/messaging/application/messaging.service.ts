@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { IWhatsAppProvider, WHATSAPP_PROVIDER } from '../domain/whatsapp-provider.interface';
+import { type IWhatsAppProvider, WHATSAPP_PROVIDER } from '../domain/whatsapp-provider.interface';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 
 /**
@@ -35,7 +35,7 @@ export class MessagingService {
       if (!invoice || !invoice.customer.phone) return;
 
       const body = `Hello ${invoice.customer.name},\n\nA new invoice (${invoice.invoiceNumber}) for ${invoice.amount} has been generated. It is due by ${invoice.dueDate.toISOString().split('T')[0]}.\n\nThank you for choosing SubTrack!`;
-      
+
       await this.whatsappProvider.sendMessage({
         to: invoice.customer.phone,
         body,
@@ -57,7 +57,7 @@ export class MessagingService {
       if (!payment || !payment.invoice.customer.phone) return;
 
       const body = `Hello ${payment.invoice.customer.name},\n\nWe have received your payment of ${payment.amount} via ${payment.method} for invoice ${payment.invoice.invoiceNumber}.\n\nThank you!`;
-      
+
       await this.whatsappProvider.sendMessage({
         to: payment.invoice.customer.phone,
         body,

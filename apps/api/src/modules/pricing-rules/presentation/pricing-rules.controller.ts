@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
-import { UserRole } from '@subtrack/shared';
+import { UserRole } from '@prisma/client';
 
 @Controller('pricing-rules')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -32,7 +32,11 @@ export class PricingRulesController {
 
   @Patch(':id')
   @Roles(UserRole.TENANT_ADMIN, UserRole.MANAGER)
-  update(@CurrentUser() user: any, @Param('id') id: string, @Body() updateDto: UpdatePricingRuleDto) {
+  update(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() updateDto: UpdatePricingRuleDto,
+  ) {
     return this.ruleService.update(id, user.tenantId, updateDto);
   }
 

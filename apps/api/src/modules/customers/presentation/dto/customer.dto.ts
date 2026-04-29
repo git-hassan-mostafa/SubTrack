@@ -1,5 +1,5 @@
+import { CustomerStatus } from '@prisma/client';
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum } from 'class-validator';
-import { CustomerStatus } from '@subtrack/shared';
 
 export class CreateCustomerDto {
   @IsString()

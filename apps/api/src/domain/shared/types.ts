@@ -1,13 +1,18 @@
 import {
-  UserRole,
   CustomerStatus,
-  SubscriptionStatus,
-  PricingType,
   InvoiceStatus,
   PaymentMethod,
-  SyncOperation,
-  SyncStatus,
-} from './enums';
+  PricingType,
+  SubscriptionStatus,
+  UserRole,
+} from '@prisma/client';
+import { SyncOperation, SyncStatus } from './enums';
+
+export interface JwtPayload {
+  userId: string;
+  tenantId: string;
+  role: UserRole;
+}
 
 export interface Tenant {
   id: string;

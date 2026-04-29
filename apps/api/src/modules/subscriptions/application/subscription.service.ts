@@ -1,13 +1,14 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { SUBSCRIPTION_REPOSITORY, SubscriptionRepository } from '../domain/subscription.repository';
+import {
+  SUBSCRIPTION_REPOSITORY,
+  type SubscriptionRepository,
+} from '../domain/subscription.repository';
 import { CreateSubscriptionDto, UpdateSubscriptionDto } from '../presentation/dto/subscription.dto';
-import { SubscriptionStatus } from '@subtrack/shared';
+import { Prisma, SubscriptionStatus } from '@prisma/client';
 
 @Injectable()
 export class SubscriptionService {
-  constructor(
-    @Inject(SUBSCRIPTION_REPOSITORY) private readonly subRepo: SubscriptionRepository,
-  ) {}
+  constructor(@Inject(SUBSCRIPTION_REPOSITORY) private readonly subRepo: SubscriptionRepository) {}
 
   async findAll(tenantId: string) {
     return this.subRepo.findAll(tenantId);
@@ -25,8 +26,8 @@ export class SubscriptionService {
       customerId: dto.customerId,
       pricingRuleId: dto.pricingRuleId,
       planName: dto.planName,
-      amperes: dto.amperes ?? null,
-      customRate: dto.customRate ?? null,
+      amperes: new Prisma.Decimal(dto.amperes as number),
+      customRate: new Prisma.Decimal(dto.customRate as number),
       startDate: new Date(dto.startDate),
       endDate: dto.endDate ? new Date(dto.endDate) : null,
       status: SubscriptionStatus.ACTIVE,

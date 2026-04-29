@@ -1,11 +1,9 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { TENANT_REPOSITORY, TenantRepository } from '../domain/tenant.repository';
+import { TENANT_REPOSITORY, type TenantRepository } from '../domain/tenant.repository';
 
 @Injectable()
 export class TenantService {
-  constructor(
-    @Inject(TENANT_REPOSITORY) private readonly tenantRepo: TenantRepository,
-  ) {}
+  constructor(@Inject(TENANT_REPOSITORY) private readonly tenantRepo: TenantRepository) {}
 
   async findById(id: string) {
     const tenant = await this.tenantRepo.findById(id);

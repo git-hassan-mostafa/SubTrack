@@ -1,6 +1,9 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { CurrentUser, AuthenticatedUser } from '../../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  type AuthenticatedUser,
+} from '../../../common/decorators/current-user.decorator';
 import { SyncService } from '../application/sync.service';
 import { SyncBatchDto } from './dto/sync.dto';
 

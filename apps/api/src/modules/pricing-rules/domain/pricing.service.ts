@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PricingRule, PricingType } from '@subtrack/shared';
+import { PricingRule, PricingType } from '@prisma/client';
 
 @Injectable()
 export class PricingService {
@@ -8,13 +8,13 @@ export class PricingService {
    */
   calculateAmount(rule: PricingRule, amperes?: number | null): number {
     if (rule.type === PricingType.FIXED) {
-      return rule.basePrice;
+      return Number(rule.basePrice);
     }
 
     if (rule.type === PricingType.AMPERE_BASED) {
       const amps = amperes || 0;
       const rate = rule.pricePerAmpere || 0;
-      return rule.basePrice + (amps * rate);
+      return Number(rule.basePrice) + amps * Number(rate);
     }
 
     return 0;

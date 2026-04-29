@@ -1,44 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { UserRepository, UserWithPassword } from '../domain/user.repository';
-import { User, UserRole } from '@subtrack/shared';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private mapToDomain(user: any): User {
-    return {
-      id: user.id,
-      tenantId: user.tenantId,
-      email: user.email,
-      name: user.name,
-      role: user.role as UserRole,
-      isActive: user.isActive,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-  }
-
   async findById(id: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    return user ? this.mapToDomain(user) : null;
+    return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    return user ? this.mapToDomain(user) : null;
+    return user;
   }
 
   async findByEmailWithPassword(email: string): Promise<UserWithPassword | null> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) return null;
-    return { ...this.mapToDomain(user), passwordHash: user.passwordHash };
+    return { ...user, passwordHash: user.passwordHash };
   }
 
   async findAll(tenantId: string): Promise<User[]> {
     const users = await this.prisma.user.findMany({ where: { tenantId } });
-    return users.map((u) => this.mapToDomain(u));
+    return users;
   }
 
   async create(data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {
@@ -52,10 +39,13 @@ export class PrismaUserRepository implements UserRepository {
         passwordHash: '',
       },
     });
-    return this.mapToDomain(user);
+    return user;
   }
 
-  async update(id: string, data: Partial<Omit<User, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>): Promise<User> {
+  async update(
+    id: string,
+    data: Partial<Omit<User, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<User> {
     const user = await this.prisma.user.update({
       where: { id },
       data: {
@@ -65,7 +55,7 @@ export class PrismaUserRepository implements UserRepository {
         isActive: data.isActive,
       },
     });
-    return this.mapToDomain(user);
+    return user;
   }
 
   async delete(id: string): Promise<void> {

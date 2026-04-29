@@ -1,5 +1,5 @@
 import { Injectable, Inject, NotFoundException, ConflictException } from '@nestjs/common';
-import { USER_REPOSITORY, UserRepository } from '../domain/user.repository';
+import { USER_REPOSITORY, type UserRepository } from '../domain/user.repository';
 import { CreateUserDto, UpdateUserDto } from '../presentation/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
@@ -26,17 +26,17 @@ export class UserService {
     if (existing) throw new ConflictException('Email already in use');
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    
+
     // Bypassing repository to write password
     const createdUser = await this.prisma.user.create({
-       data: {
-         tenantId,
-         email: dto.email,
-         name: dto.name,
-         role: dto.role,
-         passwordHash: hashedPassword,
-         isActive: true,
-       }
+      data: {
+        tenantId,
+        email: dto.email,
+        name: dto.name,
+        role: dto.role,
+        passwordHash: hashedPassword,
+        isActive: true,
+      },
     });
 
     const { passwordHash, ...result } = createdUser;

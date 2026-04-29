@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PricingRuleRepository } from '../domain/pricing-rule.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { PricingRule, PricingType } from '@subtrack/shared';
+import { PricingRule, PricingType, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaPricingRuleRepository implements PricingRuleRepository {
@@ -13,8 +13,8 @@ export class PrismaPricingRuleRepository implements PricingRuleRepository {
       tenantId: p.tenantId,
       name: p.name,
       type: p.type as PricingType,
-      basePrice: Number(p.basePrice),
-      pricePerAmpere: p.pricePerAmpere != null ? Number(p.pricePerAmpere) : null,
+      basePrice: new Prisma.Decimal(p.basePrice),
+      pricePerAmpere: new Prisma.Decimal(p.pricePerAmpere),
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     };
@@ -43,7 +43,10 @@ export class PrismaPricingRuleRepository implements PricingRuleRepository {
     return this.mapToDomain(p);
   }
 
-  async update(id: string, data: Partial<Omit<PricingRule, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>): Promise<PricingRule> {
+  async update(
+    id: string,
+    data: Partial<Omit<PricingRule, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<PricingRule> {
     const p = await this.prisma.pricingRule.update({
       where: { id },
       data: {

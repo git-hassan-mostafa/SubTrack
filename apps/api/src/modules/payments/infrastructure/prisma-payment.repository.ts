@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentRepository } from '../domain/payment.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { Payment, PaymentMethod } from '@subtrack/shared';
+import { Payment, PaymentMethod, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaPaymentRepository implements PaymentRepository {
@@ -12,7 +12,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
       id: p.id,
       tenantId: p.tenantId,
       invoiceId: p.invoiceId,
-      amount: Number(p.amount),
+      amount: new Prisma.Decimal(p.amount),
       method: p.method as PaymentMethod,
       referenceNumber: p.referenceNumber,
       paymentDate: p.paymentDate,
@@ -37,7 +37,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
     return payments.map((p) => this.mapToDomain(p));
   }
 
-  async create(data: Omit<Payment, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): Promise<Payment> {
+  async create(
+    data: Omit<Payment, 'id' | 'createdAt' | 'updatedAt'> & { id?: string },
+  ): Promise<Payment> {
     const p = await this.prisma.payment.create({
       data: {
         ...(data.id ? { id: data.id } : {}),

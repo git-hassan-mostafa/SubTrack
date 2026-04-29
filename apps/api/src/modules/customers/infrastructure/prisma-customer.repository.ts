@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CustomerRepository } from '../domain/customer.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { Customer, CustomerStatus } from '@subtrack/shared';
+import { Customer, CustomerStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class PrismaCustomerRepository implements CustomerRepository {
@@ -14,9 +14,9 @@ export class PrismaCustomerRepository implements CustomerRepository {
       name: c.name,
       phone: c.phone,
       address: c.address,
-      latitude: c.latitude != null ? Number(c.latitude) : null,
-      longitude: c.longitude != null ? Number(c.longitude) : null,
-      locationAccuracy: c.locationAccuracy != null ? Number(c.locationAccuracy) : null,
+      latitude: new Prisma.Decimal(c.latitude ?? 0),
+      longitude: new Prisma.Decimal(c.longitude ?? 0),
+      locationAccuracy: new Prisma.Decimal(c.locationAccuracy ?? 0),
       status: c.status as CustomerStatus,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
@@ -33,7 +33,9 @@ export class PrismaCustomerRepository implements CustomerRepository {
     return customers.map((c) => this.mapToDomain(c));
   }
 
-  async create(data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): Promise<Customer> {
+  async create(
+    data: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'> & { id?: string },
+  ): Promise<Customer> {
     const c = await this.prisma.customer.create({
       data: {
         ...(data.id ? { id: data.id } : {}),
@@ -50,7 +52,10 @@ export class PrismaCustomerRepository implements CustomerRepository {
     return this.mapToDomain(c);
   }
 
-  async update(id: string, data: Partial<Omit<Customer, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>): Promise<Customer> {
+  async update(
+    id: string,
+    data: Partial<Omit<Customer, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<Customer> {
     const c = await this.prisma.customer.update({
       where: { id },
       data: {

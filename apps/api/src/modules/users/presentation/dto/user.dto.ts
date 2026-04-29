@@ -1,5 +1,13 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsBoolean } from 'class-validator';
-import { UserRole } from '@subtrack/shared';
+import { UserRole } from '@prisma/client';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+  IsBoolean,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()

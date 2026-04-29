@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SubscriptionRepository } from '../domain/subscription.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { Subscription, SubscriptionStatus } from '@subtrack/shared';
+import { Prisma, Subscription, SubscriptionStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaSubscriptionRepository implements SubscriptionRepository {
@@ -15,8 +15,8 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
       pricingRuleId: s.pricingRuleId,
       planName: s.planName,
       status: s.status as SubscriptionStatus,
-      amperes: s.amperes != null ? Number(s.amperes) : null,
-      customRate: s.customRate != null ? Number(s.customRate) : null,
+      amperes: new Prisma.Decimal(s.amperes),
+      customRate: new Prisma.Decimal(s.customRate),
       startDate: s.startDate,
       endDate: s.endDate,
       createdAt: s.createdAt,
@@ -34,7 +34,9 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return subs.map((s) => this.mapToDomain(s));
   }
 
-  async create(data: Omit<Subscription, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): Promise<Subscription> {
+  async create(
+    data: Omit<Subscription, 'id' | 'createdAt' | 'updatedAt'> & { id?: string },
+  ): Promise<Subscription> {
     const s = await this.prisma.subscription.create({
       data: {
         ...(data.id ? { id: data.id } : {}),
@@ -52,7 +54,10 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return this.mapToDomain(s);
   }
 
-  async update(id: string, data: Partial<Omit<Subscription, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>): Promise<Subscription> {
+  async update(
+    id: string,
+    data: Partial<Omit<Subscription, 'id' | 'tenantId' | 'createdAt' | 'updatedAt'>>,
+  ): Promise<Subscription> {
     const s = await this.prisma.subscription.update({
       where: { id },
       data: {
@@ -69,7 +74,11 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
     return this.mapToDomain(s);
   }
 
-  async updateStatus(id: string, tenantId: string, status: SubscriptionStatus): Promise<Subscription> {
+  async updateStatus(
+    id: string,
+    tenantId: string,
+    status: SubscriptionStatus,
+  ): Promise<Subscription> {
     await this.prisma.subscription.updateMany({
       where: { id, tenantId },
       data: { status },

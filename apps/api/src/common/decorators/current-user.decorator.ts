@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { UserRole } from '@subtrack/shared';
+import { UserRole } from '@prisma/client';
 
 export interface AuthenticatedUser {
   id: string;

@@ -1,13 +1,11 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { CUSTOMER_REPOSITORY, CustomerRepository } from '../domain/customer.repository';
+import { CUSTOMER_REPOSITORY, type CustomerRepository } from '../domain/customer.repository';
 import { CreateCustomerDto, UpdateCustomerDto } from '../presentation/dto/customer.dto';
-import { CustomerStatus } from '@subtrack/shared';
+import { CustomerStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class CustomerService {
-  constructor(
-    @Inject(CUSTOMER_REPOSITORY) private readonly customerRepo: CustomerRepository,
-  ) {}
+  constructor(@Inject(CUSTOMER_REPOSITORY) private readonly customerRepo: CustomerRepository) {}
 
   async findAll(tenantId: string) {
     return this.customerRepo.findAll(tenantId);
@@ -25,9 +23,9 @@ export class CustomerService {
       name: dto.name,
       phone: dto.phone,
       address: dto.address,
-      latitude: dto.latitude ?? null,
-      longitude: dto.longitude ?? null,
-      locationAccuracy: dto.locationAccuracy ?? null,
+      latitude: new Prisma.Decimal(dto.latitude ?? 0),
+      longitude: new Prisma.Decimal(dto.longitude ?? 0),
+      locationAccuracy: new Prisma.Decimal(dto.locationAccuracy ?? 0),
       status: CustomerStatus.ACTIVE,
     });
   }

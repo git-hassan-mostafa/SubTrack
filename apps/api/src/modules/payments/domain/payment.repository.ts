@@ -1,4 +1,4 @@
-import { Payment } from '@subtrack/shared';
+import { Payment } from '@prisma/client';
 
 export const PAYMENT_REPOSITORY = 'PAYMENT_REPOSITORY';
 

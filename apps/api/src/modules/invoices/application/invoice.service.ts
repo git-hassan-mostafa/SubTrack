@@ -1,11 +1,11 @@
 import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { INVOICE_REPOSITORY, InvoiceRepository } from '../domain/invoice.repository';
+import { INVOICE_REPOSITORY, type InvoiceRepository } from '../domain/invoice.repository';
 import { CreateInvoiceDto, UpdateInvoiceDto } from '../presentation/dto/invoice.dto';
-import { InvoiceStatus } from '@subtrack/shared';
 import { PricingService } from '../../pricing-rules/domain/pricing.service';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InvoiceCreatedEvent } from '../../messaging/application/messaging.service';
+import { InvoiceStatus, Prisma } from '@prisma/client';
 
 @Injectable()
 export class InvoiceService {
@@ -71,7 +71,7 @@ export class InvoiceService {
       customerId: subscription.customerId,
       subscriptionId: subscription.id,
       invoiceNumber: '',
-      amount,
+      amount: new Prisma.Decimal(amount),
       status: InvoiceStatus.PENDING,
       issuedDate: new Date(),
       dueDate: new Date(dto.dueDate),

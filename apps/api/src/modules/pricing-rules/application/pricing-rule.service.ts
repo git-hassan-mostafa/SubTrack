@@ -1,12 +1,14 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { PRICING_RULE_REPOSITORY, PricingRuleRepository } from '../domain/pricing-rule.repository';
+import {
+  PRICING_RULE_REPOSITORY,
+  type PricingRuleRepository,
+} from '../domain/pricing-rule.repository';
 import { CreatePricingRuleDto, UpdatePricingRuleDto } from '../presentation/dto/pricing-rule.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PricingRuleService {
-  constructor(
-    @Inject(PRICING_RULE_REPOSITORY) private readonly ruleRepo: PricingRuleRepository,
-  ) {}
+  constructor(@Inject(PRICING_RULE_REPOSITORY) private readonly ruleRepo: PricingRuleRepository) {}
 
   async findAll(tenantId: string) {
     return this.ruleRepo.findAll(tenantId);
@@ -23,8 +25,8 @@ export class PricingRuleService {
       tenantId,
       name: dto.name,
       type: dto.type,
-      basePrice: dto.basePrice,
-      pricePerAmpere: dto.pricePerAmpere ?? null,
+      basePrice: new Prisma.Decimal(dto.basePrice),
+      pricePerAmpere: new Prisma.Decimal(dto.pricePerAmpere as number),
     });
   }
 

@@ -1,10 +1,28 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { CUSTOMER_REPOSITORY, CustomerRepository } from '../../customers/domain/customer.repository';
-import { INVOICE_REPOSITORY, InvoiceRepository } from '../../invoices/domain/invoice.repository';
-import { PAYMENT_REPOSITORY, PaymentRepository } from '../../payments/domain/payment.repository';
-import { SUBSCRIPTION_REPOSITORY, SubscriptionRepository } from '../../subscriptions/domain/subscription.repository';
-import { compareDates } from '@subtrack/shared';
-import { CustomerStatus, InvoiceStatus, PaymentMethod, SubscriptionStatus } from '@subtrack/shared';
+import {
+  CUSTOMER_REPOSITORY,
+  type CustomerRepository,
+} from '../../customers/domain/customer.repository';
+import {
+  INVOICE_REPOSITORY,
+  type InvoiceRepository,
+} from '../../invoices/domain/invoice.repository';
+import {
+  PAYMENT_REPOSITORY,
+  type PaymentRepository,
+} from '../../payments/domain/payment.repository';
+import {
+  SUBSCRIPTION_REPOSITORY,
+  type SubscriptionRepository,
+} from '../../subscriptions/domain/subscription.repository';
+import {
+  CustomerStatus,
+  InvoiceStatus,
+  PaymentMethod,
+  Prisma,
+  SubscriptionStatus,
+} from '@prisma/client';
+import { compareDates } from '../../../domain/shared';
 
 interface SyncOperation {
   entityType: string;
@@ -27,7 +45,8 @@ export class SyncService {
     @Inject(CUSTOMER_REPOSITORY) private readonly customerRepository: CustomerRepository,
     @Inject(INVOICE_REPOSITORY) private readonly invoiceRepository: InvoiceRepository,
     @Inject(PAYMENT_REPOSITORY) private readonly paymentRepository: PaymentRepository,
-    @Inject(SUBSCRIPTION_REPOSITORY) private readonly subscriptionRepository: SubscriptionRepository,
+    @Inject(SUBSCRIPTION_REPOSITORY)
+    private readonly subscriptionRepository: SubscriptionRepository,
   ) {}
 
   async processBatch(tenantId: string, operations: SyncOperation[]): Promise<SyncResult[]> {
@@ -78,9 +97,9 @@ export class SyncService {
         name: op.payload['name'] as string,
         phone: op.payload['phone'] as string,
         address: op.payload['address'] as string,
-        latitude: op.payload['latitude'] as number | null,
-        longitude: op.payload['longitude'] as number | null,
-        locationAccuracy: op.payload['locationAccuracy'] as number | null,
+        latitude: new Prisma.Decimal(op.payload['latitude'] as number),
+        longitude: new Prisma.Decimal(op.payload['longitude'] as number),
+        locationAccuracy: new Prisma.Decimal(op.payload['locationAccuracy'] as number),
         status: (op.payload['status'] as CustomerStatus) ?? CustomerStatus.ACTIVE,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
@@ -91,9 +110,9 @@ export class SyncService {
         name: op.payload['name'] as string,
         phone: op.payload['phone'] as string,
         address: op.payload['address'] as string,
-        latitude: op.payload['latitude'] as number | null,
-        longitude: op.payload['longitude'] as number | null,
-        locationAccuracy: op.payload['locationAccuracy'] as number | null,
+        latitude: new Prisma.Decimal(op.payload['latitude'] as number),
+        longitude: new Prisma.Decimal(op.payload['longitude'] as number),
+        locationAccuracy: new Prisma.Decimal(op.payload['locationAccuracy'] as number),
         status: op.payload['status'] as CustomerStatus,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
@@ -116,11 +135,11 @@ export class SyncService {
         customerId: op.payload['customerId'] as string,
         subscriptionId: op.payload['subscriptionId'] as string,
         invoiceNumber: op.payload['invoiceNumber'] as string,
-        amount: op.payload['amount'] as number,
+        amount: new Prisma.Decimal(op.payload['amount'] as number),
         status: (op.payload['status'] as InvoiceStatus) ?? InvoiceStatus.PENDING,
         dueDate: new Date(op.payload['dueDate'] as string),
         issuedDate: new Date(op.payload['issuedDate'] as string),
-        notes: op.payload['notes'] as string | null ?? null,
+        notes: (op.payload['notes'] as string | null) ?? null,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
     }
@@ -149,11 +168,11 @@ export class SyncService {
         id: op.entityId,
         tenantId,
         invoiceId: op.payload['invoiceId'] as string,
-        amount: op.payload['amount'] as number,
+        amount: new Prisma.Decimal(op.payload['amount'] as number),
         method: op.payload['method'] as PaymentMethod,
-        referenceNumber: op.payload['referenceNumber'] as string | null ?? null,
+        referenceNumber: (op.payload['referenceNumber'] as string | null) ?? null,
         paymentDate: new Date(op.payload['paymentDate'] as string),
-        notes: op.payload['notes'] as string | null ?? null,
+        notes: (op.payload['notes'] as string | null) ?? null,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
     }
@@ -181,8 +200,8 @@ export class SyncService {
         pricingRuleId: op.payload['pricingRuleId'] as string,
         planName: (op.payload['planName'] as string) ?? '',
         status: (op.payload['status'] as SubscriptionStatus) ?? SubscriptionStatus.ACTIVE,
-        amperes: op.payload['amperes'] as number | null ?? null,
-        customRate: op.payload['customRate'] as number | null ?? null,
+        amperes: new Prisma.Decimal(op.payload['amperes'] as number),
+        customRate: new Prisma.Decimal(op.payload['customRate'] as number),
         startDate: new Date(op.payload['startDate'] as string),
         endDate: op.payload['endDate'] ? new Date(op.payload['endDate'] as string) : null,
       });
@@ -193,7 +212,7 @@ export class SyncService {
       await this.subscriptionRepository.update(op.entityId, {
         planName: op.payload['planName'] as string,
         status: op.payload['status'] as SubscriptionStatus,
-        customRate: op.payload['customRate'] as number | null ?? null,
+        customRate: new Prisma.Decimal(op.payload['customRate'] as number),
         endDate: op.payload['endDate'] ? new Date(op.payload['endDate'] as string) : null,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
