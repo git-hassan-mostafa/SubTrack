@@ -5,7 +5,8 @@
       "Bash(node 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\node_modules\\\\typescript\\\\bin\\\\tsc' --noEmit -p 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\packages\\\\shared\\\\tsconfig.json')",
       "Bash(node 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\node_modules\\\\typescript\\\\bin\\\\tsc' --noEmit -p 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\mobile\\\\tsconfig.json')",
       "Bash(node 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\node_modules\\\\typescript\\\\bin\\\\tsc' --noEmit -p 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\api\\\\tsconfig.json' --moduleResolution node)",
-      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 node 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\api\\\\node_modules\\\\prisma\\\\build\\\\index.js' generate --schema 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\api\\\\prisma\\\\schema.prisma')"
+      "Bash(NODE_TLS_REJECT_UNAUTHORIZED=0 node 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\api\\\\node_modules\\\\prisma\\\\build\\\\index.js' generate --schema 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\api\\\\prisma\\\\schema.prisma')",
+      "Bash(node 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\node_modules\\\\typescript\\\\bin\\\\tsc' --noEmit -p 'c:\\\\Users\\\\hmostafa\\\\Desktop\\\\SubTrack\\\\apps\\\\api\\\\tsconfig.json')"
     ]
   }
 }

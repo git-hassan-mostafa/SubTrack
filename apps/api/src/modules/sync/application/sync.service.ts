@@ -14,7 +14,7 @@ interface SyncOperation {
   updatedAt: string;
 }
 
-interface SyncResult {
+export interface SyncResult {
   entityId: string;
   status: 'SUCCESS' | 'CONFLICT' | 'ERROR';
   serverVersion?: Record<string, unknown>;
