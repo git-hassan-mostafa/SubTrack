@@ -4,7 +4,7 @@ import { INVOICE_REPOSITORY, InvoiceRepository } from '../../invoices/domain/inv
 import { PAYMENT_REPOSITORY, PaymentRepository } from '../../payments/domain/payment.repository';
 import { SUBSCRIPTION_REPOSITORY, SubscriptionRepository } from '../../subscriptions/domain/subscription.repository';
 import { compareDates } from '@subtrack/shared';
-import { InvoiceStatus, SubscriptionStatus } from '@subtrack/shared';
+import { CustomerStatus, InvoiceStatus, PaymentMethod, SubscriptionStatus } from '@subtrack/shared';
 
 interface SyncOperation {
   entityType: string;
@@ -81,7 +81,7 @@ export class SyncService {
         latitude: op.payload['latitude'] as number | null,
         longitude: op.payload['longitude'] as number | null,
         locationAccuracy: op.payload['locationAccuracy'] as number | null,
-        status: (op.payload['status'] as string) ?? 'ACTIVE',
+        status: (op.payload['status'] as CustomerStatus) ?? CustomerStatus.ACTIVE,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
     }
@@ -94,7 +94,7 @@ export class SyncService {
         latitude: op.payload['latitude'] as number | null,
         longitude: op.payload['longitude'] as number | null,
         locationAccuracy: op.payload['locationAccuracy'] as number | null,
-        status: op.payload['status'] as string,
+        status: op.payload['status'] as CustomerStatus,
       });
       return { entityId: op.entityId, status: 'SUCCESS' };
     }
@@ -150,7 +150,7 @@ export class SyncService {
         tenantId,
         invoiceId: op.payload['invoiceId'] as string,
         amount: op.payload['amount'] as number,
-        method: op.payload['method'] as string,
+        method: op.payload['method'] as PaymentMethod,
         referenceNumber: op.payload['referenceNumber'] as string | null ?? null,
         paymentDate: new Date(op.payload['paymentDate'] as string),
         notes: op.payload['notes'] as string | null ?? null,

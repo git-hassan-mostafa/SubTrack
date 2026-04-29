@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { InvoiceStatus } from '@subtrack/shared';
 import { SQLitePaymentRepository } from '../data/repositories/sqlite-payment.repository';
 import { SQLiteInvoiceRepository } from '../data/repositories/sqlite-invoice.repository';
 import type { PaymentEntity } from '../domain/entities';
@@ -41,7 +42,7 @@ export const usePaymentStore = create<PaymentState>((set) => ({
       const invoice = await invoiceRepo.findById(data.invoiceId);
       if (invoice && totalPaid >= invoice.amount) {
         await invoiceRepo.update(data.invoiceId, {
-          status: 'PAID',
+          status: InvoiceStatus.PAID,
           paidDate: new Date().toISOString(),
         });
       }

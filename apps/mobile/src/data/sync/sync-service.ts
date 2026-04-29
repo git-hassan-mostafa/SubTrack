@@ -155,34 +155,29 @@ export class SyncService {
   /** Pull all data from server and upsert into local SQLite */
   private async pullServerData(): Promise<void> {
     try {
-      // Pull customers
-      const customers = await apiClient.fetchEntities('customers');
+      const customers = await apiClient.fetchEntities<CustomerEntity>('customers');
       for (const c of customers) {
-        await this.customerRepo.upsertFromServer(c as unknown as CustomerEntity);
+        await this.customerRepo.upsertFromServer(c);
       }
 
-      // Pull invoices
-      const invoices = await apiClient.fetchEntities('invoices');
+      const invoices = await apiClient.fetchEntities<InvoiceEntity>('invoices');
       for (const inv of invoices) {
-        await this.invoiceRepo.upsertFromServer(inv as unknown as InvoiceEntity);
+        await this.invoiceRepo.upsertFromServer(inv);
       }
 
-      // Pull payments
-      const payments = await apiClient.fetchEntities('payments');
+      const payments = await apiClient.fetchEntities<PaymentEntity>('payments');
       for (const p of payments) {
-        await this.paymentRepo.upsertFromServer(p as unknown as PaymentEntity);
+        await this.paymentRepo.upsertFromServer(p);
       }
 
-      // Pull subscriptions
-      const subs = await apiClient.fetchEntities('subscriptions');
+      const subs = await apiClient.fetchEntities<SubscriptionEntity>('subscriptions');
       for (const s of subs) {
-        await this.subscriptionRepo.upsertFromServer(s as unknown as SubscriptionEntity);
+        await this.subscriptionRepo.upsertFromServer(s);
       }
 
-      // Pull pricing rules
-      const rules = await apiClient.fetchEntities('pricing-rules');
+      const rules = await apiClient.fetchEntities<PricingRuleEntity>('pricing-rules');
       for (const r of rules) {
-        await this.pricingRuleRepo.upsertFromServer(r as unknown as PricingRuleEntity);
+        await this.pricingRuleRepo.upsertFromServer(r);
       }
     } catch (error) {
       // Pull failures are non-critical — local data still works

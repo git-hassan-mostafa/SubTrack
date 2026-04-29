@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { IWhatsAppProvider, SendMessageOptions } from '../domain/whatsapp-provider.interface';
-import * as twilio from 'twilio';
+import twilio, { Twilio } from 'twilio';
 
 @Injectable()
 export class TwilioWhatsAppProvider implements IWhatsAppProvider {
   private readonly logger = new Logger(TwilioWhatsAppProvider.name);
-  private client: twilio.Twilio | null = null;
+  private client: Twilio | null = null;
   private fromNumber: string | undefined;
   
   constructor() {

@@ -70,11 +70,12 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
   }
 
   async updateStatus(id: string, tenantId: string, status: SubscriptionStatus): Promise<Subscription> {
-    const s = await this.prisma.subscription.update({
-      where: { id },
+    await this.prisma.subscription.updateMany({
+      where: { id, tenantId },
       data: { status },
     });
-    return this.mapToDomain(s);
+    const updated = await this.prisma.subscription.findFirst({ where: { id, tenantId } });
+    return this.mapToDomain(updated!);
   }
 
   async delete(id: string, tenantId: string): Promise<void> {

@@ -72,10 +72,11 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
   }
 
   async updateStatus(id: string, tenantId: string, status: InvoiceStatus, paidDate?: Date): Promise<Invoice> {
-    const i = await this.prisma.invoice.update({
-      where: { id },
+    await this.prisma.invoice.updateMany({
+      where: { id, tenantId },
       data: { status, paidDate },
     });
-    return this.mapToDomain(i);
+    const updated = await this.prisma.invoice.findFirst({ where: { id, tenantId } });
+    return this.mapToDomain(updated!);
   }
 }

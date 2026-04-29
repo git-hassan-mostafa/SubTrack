@@ -21,7 +21,10 @@ export class PricingRuleService {
   async create(tenantId: string, dto: CreatePricingRuleDto) {
     return this.ruleRepo.create({
       tenantId,
-      ...dto,
+      name: dto.name,
+      type: dto.type,
+      basePrice: dto.basePrice,
+      pricePerAmpere: dto.pricePerAmpere ?? null,
     });
   }
 

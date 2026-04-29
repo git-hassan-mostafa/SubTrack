@@ -14,6 +14,7 @@ import * as Location from 'expo-location';
 import { useCustomerStore } from '../../src/state/customer.store';
 import { useAuthStore } from '../../src/state/auth.store';
 import { Ionicons } from '@expo/vector-icons';
+import { CustomerStatus } from '@subtrack/shared';
 import type { CustomerEntity } from '../../src/domain/entities';
 
 export default function CustomersScreen() {
@@ -102,7 +103,7 @@ export default function CustomersScreen() {
         latitude: formLat ? parseFloat(formLat) : null,
         longitude: formLng ? parseFloat(formLng) : null,
         locationAccuracy: formAccuracy ? parseFloat(formAccuracy) : null,
-        status: 'ACTIVE',
+        status: CustomerStatus.ACTIVE,
       };
 
       if (editingCustomer) {

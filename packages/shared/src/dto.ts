@@ -22,6 +22,8 @@ export interface SyncBatchResponseDto {
   results: SyncBatchResultItemDto[];
 }
 
+import { UserRole } from './enums';
+
 // Any other DTOs needed cross-platform.
 export interface LoginResponseDto {
   accessToken: string;
@@ -30,6 +32,6 @@ export interface LoginResponseDto {
     tenantId: string;
     email: string;
     name: string;
-    role: string;
+    role: UserRole;
   };
 }

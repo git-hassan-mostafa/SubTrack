@@ -14,15 +14,16 @@ import { usePaymentStore } from '../../src/state/payment.store';
 import { useAuthStore } from '../../src/state/auth.store';
 import { SQLiteInvoiceRepository } from '../../src/data/repositories/sqlite-invoice.repository';
 import { Ionicons } from '@expo/vector-icons';
+import { InvoiceStatus, PaymentMethod } from '@subtrack/shared';
 import type { PaymentEntity, InvoiceEntity } from '../../src/domain/entities';
 
 const invoiceRepo = new SQLiteInvoiceRepository();
 
-const METHOD_LABELS: Record<string, string> = {
-  CASH: '💵 Cash',
-  BANK_TRANSFER: '🏦 Bank Transfer',
-  MOBILE_MONEY: '📱 Mobile Money',
-  CHEQUE: '📝 Cheque',
+const METHOD_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.CASH]: '💵 Cash',
+  [PaymentMethod.BANK_TRANSFER]: '🏦 Bank Transfer',
+  [PaymentMethod.MOBILE_MONEY]: '📱 Mobile Money',
+  [PaymentMethod.CHEQUE]: '📝 Cheque',
 };
 
 export default function PaymentsScreen() {
@@ -34,7 +35,7 @@ export default function PaymentsScreen() {
 
   // Form state
   const [formAmount, setFormAmount] = useState('');
-  const [formMethod, setFormMethod] = useState('CASH');
+  const [formMethod, setFormMethod] = useState<PaymentMethod>(PaymentMethod.CASH);
   const [formRef, setFormRef] = useState('');
   const [formNotes, setFormNotes] = useState('');
 
@@ -44,7 +45,7 @@ export default function PaymentsScreen() {
 
   const openForm = async () => {
     const allInvoices = await invoiceRepo.findAll();
-    const unpaid = allInvoices.filter((inv) => inv.status !== 'PAID' && inv.status !== 'CANCELLED');
+    const unpaid = allInvoices.filter((inv) => inv.status !== InvoiceStatus.PAID && inv.status !== InvoiceStatus.CANCELLED);
     setInvoices(unpaid);
     setShowForm(true);
   };
@@ -154,7 +155,7 @@ export default function PaymentsScreen() {
           {/* Payment Method */}
           <Text style={styles.formLabel}>Payment Method</Text>
           <View style={styles.methodGrid}>
-            {Object.entries(METHOD_LABELS).map(([key, label]) => (
+            {(Object.entries(METHOD_LABELS) as [PaymentMethod, string][]).map(([key, label]) => (
               <TouchableOpacity
                 key={key}
                 style={[styles.methodChip, formMethod === key && styles.methodChipActive]}

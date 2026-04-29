@@ -74,7 +74,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
   }
 
   async updateStatus(id: string, tenantId: string, status: CustomerStatus): Promise<Customer> {
-    const c = await this.prisma.customer.updateMany({
+    await this.prisma.customer.updateMany({
       where: { id, tenantId },
       data: { status },
     });

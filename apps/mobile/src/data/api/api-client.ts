@@ -1,16 +1,15 @@
 import * as SecureStore from 'expo-secure-store';
+import type { LoginResponseDto } from '@subtrack/shared';
 
 const TOKEN_KEY = 'subtrack_auth_token';
 const USER_KEY = 'subtrack_user_data';
 
-/** Stored user information */
-export interface StoredUser {
-  id: string;
-  tenantId: string;
-  email: string;
-  name: string;
-  role: string;
-}
+/**
+ * Stored user information — the same shape returned by the api `/auth/login`
+ * endpoint, sourced from the shared `LoginResponseDto` so the wire format and
+ * the mobile cache stay in lockstep.
+ */
+export type StoredUser = LoginResponseDto['user'];
 
 /**
  * ApiClient — the ONLY place that makes HTTP calls.
@@ -66,10 +65,7 @@ export class ApiClient {
   /**
    * Login — the only public API call besides sync.
    */
-  async login(email: string, password: string): Promise<{
-    accessToken: string;
-    user: StoredUser;
-  }> {
+  async login(email: string, password: string): Promise<LoginResponseDto> {
     const response = await fetch(`${this.baseUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -81,7 +77,7 @@ export class ApiClient {
       throw new Error((error as { message?: string }).message ?? 'Login failed');
     }
 
-    const data = await response.json() as { accessToken: string; user: StoredUser };
+    const data = await response.json() as LoginResponseDto;
 
     // Store token and user
     await this.setToken(data.accessToken);
@@ -139,8 +135,12 @@ export class ApiClient {
 
   /**
    * Fetch initial data from server (used on first sync after login).
+   *
+   * The caller declares the expected row shape via the type parameter — the
+   * JSON is not validated at runtime, so this is a structural assertion the
+   * caller is responsible for matching to the api wire format.
    */
-  async fetchEntities(entityType: string): Promise<Record<string, unknown>[]> {
+  async fetchEntities<T = Record<string, unknown>>(entityType: string): Promise<T[]> {
     const token = await this.getToken();
     if (!token) throw new Error('Not authenticated');
 
@@ -158,7 +158,7 @@ export class ApiClient {
       throw new Error(`Failed to fetch ${entityType}`);
     }
 
-    return response.json() as Promise<Record<string, unknown>[]>;
+    return response.json() as Promise<T[]>;
   }
 }
 

@@ -22,7 +22,12 @@ export class CustomerService {
   async create(tenantId: string, dto: CreateCustomerDto) {
     return this.customerRepo.create({
       tenantId,
-      ...dto,
+      name: dto.name,
+      phone: dto.phone,
+      address: dto.address,
+      latitude: dto.latitude ?? null,
+      longitude: dto.longitude ?? null,
+      locationAccuracy: dto.locationAccuracy ?? null,
       status: CustomerStatus.ACTIVE,
     });
   }

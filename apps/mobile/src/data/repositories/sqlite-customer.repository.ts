@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { CustomerStatus } from '@subtrack/shared';
 import { getDatabase } from '../database/database';
 import type { ICustomerRepository } from '../../domain/repositories';
 import type { CustomerEntity } from '../../domain/entities';
@@ -108,15 +109,15 @@ export class SQLiteCustomerRepository implements ICustomerRepository {
 
     // Soft delete — set status to INACTIVE
     await db.runAsync(
-      `UPDATE customers SET status='INACTIVE', updatedAt=? WHERE id=?`,
-      [now, id]
+      `UPDATE customers SET status=?, updatedAt=? WHERE id=?`,
+      [CustomerStatus.INACTIVE, now, id]
     );
 
     // Queue for sync
     await db.runAsync(
       `INSERT INTO sync_queue (entityType, entityId, operation, payload, createdAt, status)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      ['customer', id, 'UPDATE', JSON.stringify({ ...existing, status: 'INACTIVE', updatedAt: now }), now, 'PENDING']
+      ['customer', id, 'UPDATE', JSON.stringify({ ...existing, status: CustomerStatus.INACTIVE, updatedAt: now }), now, 'PENDING']
     );
   }
 
