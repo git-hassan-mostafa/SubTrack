@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Tenant
+// ─────────────────────────────────────────────
+
+model Tenant {
+  id          String   @id @default(uuid())
+  companyName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users         User[]
+  customers     Customer[]
+  pricingRules  PricingRule[]
+  subscriptions Subscription[]
+  invoices      Invoice[]
+  payments      Payment[]
+}
+
+// ─────────────────────────────────────────────
+// User
+// ─────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  tenantId     String
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(OPERATOR)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+enum UserRole {
+  TENANT_ADMIN
+  OPERATOR
+  MANAGER
+}
+
+// ─────────────────────────────────────────────
+// Customer
+// ─────────────────────────────────────────────
+
+model Customer {
+  id               String         @id @default(uuid())
+  tenantId         String
+  name             String
+  phone            String
+  address          String
+  latitude         Decimal?       @db.Decimal(10, 7)
+  longitude        Decimal?       @db.Decimal(10, 7)
+  locationAccuracy Decimal?       @db.Decimal(10, 2)
+  status           CustomerStatus @default(ACTIVE)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+  invoices      Invoice[]
+
+  @@index([tenantId])
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+// ─────────────────────────────────────────────
+// PricingRule
+// ─────────────────────────────────────────────
+
+model PricingRule {
+  id             String      @id @default(uuid())
+  tenantId       String
+  name           String
+  type           PricingType
+  basePrice      Decimal     @default(0) @db.Decimal(12, 2)
+  pricePerAmpere Decimal?    @db.Decimal(12, 4)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+
+  @@index([tenantId])
+}
+
+enum PricingType {
+  FIXED
+  AMPERE_BASED
+}
+
+// ─────────────────────────────────────────────
+// Subscription
+// ─────────────────────────────────────────────
+
+model Subscription {
+  id            String             @id @default(uuid())
+  tenantId      String
+  customerId    String
+  pricingRuleId String
+  planName      String
+  status        SubscriptionStatus @default(ACTIVE)
+  amperes       Decimal?           @db.Decimal(10, 2)
+  customRate    Decimal?           @db.Decimal(12, 2)
+  startDate     DateTime
+  endDate       DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer    Customer    @relation(fields: [customerId], references: [id])
+  pricingRule PricingRule @relation(fields: [pricingRuleId], references: [id])
+  invoices    Invoice[]
+
+  @@index([tenantId])
+  @@index([customerId])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────
+// Invoice
+// ─────────────────────────────────────────────
+
+model Invoice {
+  id             String        @id @default(uuid())
+  tenantId       String
+  customerId     String
+  subscriptionId String
+  invoiceNumber  String
+  amount         Decimal       @db.Decimal(12, 2)
+  status         InvoiceStatus @default(PENDING)
+  issuedDate     DateTime
+  dueDate        DateTime
+  paidDate       DateTime?
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [customerId], references: [id])
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  payments     Payment[]
+
+  @@index([tenantId])
+  @@index([customerId])
+  @@index([subscriptionId])
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// ─────────────────────────────────────────────
+// Payment
+// ─────────────────────────────────────────────
+
+model Payment {
+  id              String        @id @default(uuid())
+  tenantId        String
+  invoiceId       String
+  amount          Decimal       @db.Decimal(12, 2)
+  method          PaymentMethod
+  referenceNumber String?
+  paymentDate     DateTime
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([tenantId])
+  @@index([invoiceId])
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_MONEY
+  CHEQUE
+}
