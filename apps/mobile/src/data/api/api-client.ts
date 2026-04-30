@@ -1,5 +1,5 @@
+import { LoginResponseDto } from '@/src/domain';
 import * as SecureStore from 'expo-secure-store';
-import type { LoginResponseDto } from '@subtrack/shared';
 
 const TOKEN_KEY = 'subtrack_auth_token';
 const USER_KEY = 'subtrack_user_data';

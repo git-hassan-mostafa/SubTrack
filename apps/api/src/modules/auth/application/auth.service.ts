@@ -2,14 +2,14 @@ import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { USER_REPOSITORY, type UserRepository } from '../../users/domain/user.repository';
-import { JwtPayload, LoginResponseDto } from '../../../domain/shared';
+import { JwtPayload, LoginResponseDto } from '../../../domain';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async login(email: string, password: string): Promise<LoginResponseDto> {
     const userWithPassword = await this.userRepository.findByEmailWithPassword(email);

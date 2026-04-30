@@ -3,19 +3,11 @@
  *
  * Field names match the columns defined in `data/database/database.ts`.
  * Dates are ISO-8601 strings because SQLite has no Date type — this is the
- * only intentional divergence from the canonical entities in `@subtrack/shared`.
  * Status/method/type/operation fields use the shared enums, so any mismatch
  * with the api wire format is a compile-time error.
  */
-import type {
-  CustomerStatus,
-  InvoiceStatus,
-  PaymentMethod,
-  PricingType,
-  SubscriptionStatus,
-  SyncOperation,
-  SyncStatus,
-} from '@subtrack/shared';
+
+import { CustomerStatus, InvoiceStatus, PaymentMethod, PricingType, SubscriptionStatus, SyncOperation, SyncStatus } from "./enums";
 
 export interface CustomerEntity {
   id: string;

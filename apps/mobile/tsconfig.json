@@ -3,8 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": ["./*"],
-      "@subtrack/shared": ["../../packages/shared/src/index.ts"]
+      "@/*": [
+        "./*"
+      ]
     }
   },
   "include": [
@@ -13,5 +14,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -14,8 +14,8 @@ import * as Location from 'expo-location';
 import { useCustomerStore } from '../../src/state/customer.store';
 import { useAuthStore } from '../../src/state/auth.store';
 import { Ionicons } from '@expo/vector-icons';
-import { CustomerStatus } from '@subtrack/shared';
 import type { CustomerEntity } from '../../src/domain/entities';
+import { CustomerStatus } from '@/src/domain';
 
 export default function CustomersScreen() {
   const { customers, isLoading, loadCustomers, createCustomer, updateCustomer, deleteCustomer } = useCustomerStore();

@@ -14,8 +14,8 @@ import { usePaymentStore } from '../../src/state/payment.store';
 import { useAuthStore } from '../../src/state/auth.store';
 import { SQLiteInvoiceRepository } from '../../src/data/repositories/sqlite-invoice.repository';
 import { Ionicons } from '@expo/vector-icons';
-import { InvoiceStatus, PaymentMethod } from '@subtrack/shared';
 import type { PaymentEntity, InvoiceEntity } from '../../src/domain/entities';
+import { InvoiceStatus, PaymentMethod } from '@/src/domain';
 
 const invoiceRepo = new SQLiteInvoiceRepository();
 

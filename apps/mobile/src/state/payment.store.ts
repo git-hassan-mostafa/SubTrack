@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { InvoiceStatus } from '@subtrack/shared';
 import { SQLitePaymentRepository } from '../data/repositories/sqlite-payment.repository';
 import { SQLiteInvoiceRepository } from '../data/repositories/sqlite-invoice.repository';
 import type { PaymentEntity } from '../domain/entities';
+import { InvoiceStatus } from '../domain';
 
 const paymentRepo = new SQLitePaymentRepository();
 const invoiceRepo = new SQLiteInvoiceRepository();
