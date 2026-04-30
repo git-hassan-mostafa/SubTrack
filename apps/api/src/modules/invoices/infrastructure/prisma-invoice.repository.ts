@@ -1,38 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InvoiceRepository } from '../domain/invoice.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { Invoice, InvoiceStatus, Prisma } from '@prisma/client';
+import { Invoice, InvoiceStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaInvoiceRepository implements InvoiceRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  private mapToDomain(i: any): Invoice {
-    return {
-      id: i.id,
-      tenantId: i.tenantId,
-      customerId: i.customerId,
-      subscriptionId: i.subscriptionId,
-      invoiceNumber: i.invoiceNumber,
-      amount: new Prisma.Decimal(i.amount),
-      status: i.status as InvoiceStatus,
-      issuedDate: i.issuedDate,
-      dueDate: i.dueDate,
-      paidDate: i.paidDate,
-      notes: i.notes,
-      createdAt: i.createdAt,
-      updatedAt: i.updatedAt,
-    };
-  }
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string, tenantId: string): Promise<Invoice | null> {
     const i = await this.prisma.invoice.findFirst({ where: { id, tenantId } });
-    return i ? this.mapToDomain(i) : null;
+    return i;
   }
 
   async findAll(tenantId: string): Promise<Invoice[]> {
     const invoices = await this.prisma.invoice.findMany({ where: { tenantId } });
-    return invoices.map((i) => this.mapToDomain(i));
+    return invoices;
   }
 
   async create(
@@ -57,7 +39,7 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         notes: data.notes,
       },
     });
-    return this.mapToDomain(i);
+    return i;
   }
 
   async update(
@@ -75,7 +57,7 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
         notes: data.notes,
       },
     });
-    return this.mapToDomain(i);
+    return i;
   }
 
   async updateStatus(
@@ -89,6 +71,6 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
       data: { status, paidDate },
     });
     const updated = await this.prisma.invoice.findFirst({ where: { id, tenantId } });
-    return this.mapToDomain(updated!);
+    return updated!;
   }
 }

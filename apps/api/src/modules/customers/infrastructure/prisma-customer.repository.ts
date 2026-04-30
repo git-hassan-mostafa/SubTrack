@@ -1,36 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { CustomerRepository } from '../domain/customer.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { Customer, CustomerStatus, Prisma } from '@prisma/client';
+import { Customer, CustomerStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaCustomerRepository implements CustomerRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  private mapToDomain(c: any): Customer {
-    return {
-      id: c.id,
-      tenantId: c.tenantId,
-      name: c.name,
-      phone: c.phone,
-      address: c.address,
-      latitude: new Prisma.Decimal(c.latitude ?? 0),
-      longitude: new Prisma.Decimal(c.longitude ?? 0),
-      locationAccuracy: new Prisma.Decimal(c.locationAccuracy ?? 0),
-      status: c.status as CustomerStatus,
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-    };
-  }
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string, tenantId: string): Promise<Customer | null> {
     const c = await this.prisma.customer.findFirst({ where: { id, tenantId } });
-    return c ? this.mapToDomain(c) : null;
+    return c;
   }
 
   async findAll(tenantId: string): Promise<Customer[]> {
     const customers = await this.prisma.customer.findMany({ where: { tenantId } });
-    return customers.map((c) => this.mapToDomain(c));
+    return customers;
   }
 
   async create(
@@ -49,7 +33,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
         status: data.status,
       },
     });
-    return this.mapToDomain(c);
+    return c;
   }
 
   async update(
@@ -68,7 +52,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
         status: data.status,
       },
     });
-    return this.mapToDomain(c);
+    return c;
   }
 
   async delete(id: string, tenantId: string): Promise<void> {
@@ -84,6 +68,6 @@ export class PrismaCustomerRepository implements CustomerRepository {
       data: { status },
     });
     const updated = await this.prisma.customer.findFirst({ where: { id, tenantId } });
-    return this.mapToDomain(updated!);
+    return updated!;
   }
 }

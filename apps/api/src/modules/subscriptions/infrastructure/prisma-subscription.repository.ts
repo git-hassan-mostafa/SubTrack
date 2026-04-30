@@ -1,37 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { SubscriptionRepository } from '../domain/subscription.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { Prisma, Subscription, SubscriptionStatus } from '@prisma/client';
+import { Subscription, SubscriptionStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaSubscriptionRepository implements SubscriptionRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  private mapToDomain(s: any): Subscription {
-    return {
-      id: s.id,
-      tenantId: s.tenantId,
-      customerId: s.customerId,
-      pricingRuleId: s.pricingRuleId,
-      planName: s.planName,
-      status: s.status as SubscriptionStatus,
-      amperes: new Prisma.Decimal(s.amperes),
-      customRate: new Prisma.Decimal(s.customRate),
-      startDate: s.startDate,
-      endDate: s.endDate,
-      createdAt: s.createdAt,
-      updatedAt: s.updatedAt,
-    };
-  }
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string, tenantId: string): Promise<Subscription | null> {
     const s = await this.prisma.subscription.findFirst({ where: { id, tenantId } });
-    return s ? this.mapToDomain(s) : null;
+    return s;
   }
 
   async findAll(tenantId: string): Promise<Subscription[]> {
     const subs = await this.prisma.subscription.findMany({ where: { tenantId } });
-    return subs.map((s) => this.mapToDomain(s));
+    return subs;
   }
 
   async create(
@@ -51,7 +34,7 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
         endDate: data.endDate,
       },
     });
-    return this.mapToDomain(s);
+    return s;
   }
 
   async update(
@@ -71,7 +54,7 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
         endDate: data.endDate,
       },
     });
-    return this.mapToDomain(s);
+    return s;
   }
 
   async updateStatus(
@@ -84,7 +67,7 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
       data: { status },
     });
     const updated = await this.prisma.subscription.findFirst({ where: { id, tenantId } });
-    return this.mapToDomain(updated!);
+    return updated!;
   }
 
   async delete(id: string, tenantId: string): Promise<void> {

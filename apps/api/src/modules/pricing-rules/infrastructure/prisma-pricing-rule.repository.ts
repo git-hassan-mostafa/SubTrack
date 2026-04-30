@@ -1,33 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PricingRuleRepository } from '../domain/pricing-rule.repository';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
-import { PricingRule, PricingType, Prisma } from '@prisma/client';
+import { PricingRule } from '@prisma/client';
 
 @Injectable()
 export class PrismaPricingRuleRepository implements PricingRuleRepository {
-  constructor(private readonly prisma: PrismaService) {}
-
-  private mapToDomain(p: any): PricingRule {
-    return {
-      id: p.id,
-      tenantId: p.tenantId,
-      name: p.name,
-      type: p.type as PricingType,
-      basePrice: new Prisma.Decimal(p.basePrice),
-      pricePerAmpere: new Prisma.Decimal(p.pricePerAmpere),
-      createdAt: p.createdAt,
-      updatedAt: p.updatedAt,
-    };
-  }
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string, tenantId: string): Promise<PricingRule | null> {
     const p = await this.prisma.pricingRule.findFirst({ where: { id, tenantId } });
-    return p ? this.mapToDomain(p) : null;
+    return p;
   }
 
   async findAll(tenantId: string): Promise<PricingRule[]> {
     const rules = await this.prisma.pricingRule.findMany({ where: { tenantId } });
-    return rules.map((p) => this.mapToDomain(p));
+    return rules;
   }
 
   async create(data: Omit<PricingRule, 'id' | 'createdAt' | 'updatedAt'>): Promise<PricingRule> {
@@ -40,7 +27,7 @@ export class PrismaPricingRuleRepository implements PricingRuleRepository {
         pricePerAmpere: data.pricePerAmpere,
       },
     });
-    return this.mapToDomain(p);
+    return p;
   }
 
   async update(
@@ -56,7 +43,7 @@ export class PrismaPricingRuleRepository implements PricingRuleRepository {
         pricePerAmpere: data.pricePerAmpere,
       },
     });
-    return this.mapToDomain(p);
+    return p;
   }
 
   async delete(id: string, tenantId: string): Promise<void> {
