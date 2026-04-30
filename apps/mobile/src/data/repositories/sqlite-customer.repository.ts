@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDatabase } from '../database/database';
 import type { ICustomerRepository } from '../../domain/repositories';
 import type { CustomerEntity } from '../../domain/entities';
-import { CustomerStatus } from '@/src/domain';
+import { CustomerStatus } from '../../domain';
 
 /**
  * SQLite implementation of ICustomerRepository.

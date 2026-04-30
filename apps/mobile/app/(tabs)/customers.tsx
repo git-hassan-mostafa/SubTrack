@@ -15,7 +15,7 @@ import { useCustomerStore } from '../../src/state/customer.store';
 import { useAuthStore } from '../../src/state/auth.store';
 import { Ionicons } from '@expo/vector-icons';
 import type { CustomerEntity } from '../../src/domain/entities';
-import { CustomerStatus } from '@/src/domain';
+import { CustomerStatus } from '../../src/domain';
 
 export default function CustomersScreen() {
   const { customers, isLoading, loadCustomers, createCustomer, updateCustomer, deleteCustomer } = useCustomerStore();
