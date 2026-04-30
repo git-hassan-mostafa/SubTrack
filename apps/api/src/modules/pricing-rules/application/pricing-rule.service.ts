@@ -32,7 +32,11 @@ export class PricingRuleService {
 
   async update(id: string, tenantId: string, dto: UpdatePricingRuleDto) {
     await this.findById(id, tenantId); // checks existence and ownership
-    return this.ruleRepo.update(id, dto);
+    return this.ruleRepo.update(id, {
+      ...dto,
+      basePrice: dto.basePrice != null ? new Prisma.Decimal(dto.basePrice) : undefined,
+      pricePerAmpere: dto.pricePerAmpere != null ? new Prisma.Decimal(dto.pricePerAmpere) : undefined,
+    });
   }
 
   async delete(id: string, tenantId: string) {

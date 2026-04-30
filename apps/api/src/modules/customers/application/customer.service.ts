@@ -32,7 +32,12 @@ export class CustomerService {
 
   async update(id: string, tenantId: string, dto: UpdateCustomerDto) {
     await this.findById(id, tenantId); // checks existence and ownership
-    return this.customerRepo.update(id, dto);
+    return this.customerRepo.update(id, {
+      ...dto,
+      latitude: dto.latitude != null ? new Prisma.Decimal(dto.latitude) : undefined,
+      longitude: dto.longitude != null ? new Prisma.Decimal(dto.longitude) : undefined,
+      locationAccuracy: dto.locationAccuracy != null ? new Prisma.Decimal(dto.locationAccuracy) : undefined,
+    });
   }
 
   async delete(id: string, tenantId: string) {

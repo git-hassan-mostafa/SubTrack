@@ -38,6 +38,8 @@ export class SubscriptionService {
     await this.findById(id, tenantId); // checks existence and ownership
     return this.subRepo.update(id, {
       ...dto,
+      amperes: dto.amperes != null ? new Prisma.Decimal(dto.amperes) : undefined,
+      customRate: dto.customRate != null ? new Prisma.Decimal(dto.customRate) : undefined,
       startDate: dto.startDate ? new Date(dto.startDate) : undefined,
       endDate: dto.endDate ? new Date(dto.endDate) : undefined,
     });
