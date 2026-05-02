@@ -1,15 +1,15 @@
-import { LoginResponseDto } from '../../domain';
-import * as SecureStore from 'expo-secure-store';
+import { LoginResponseDto } from "../../domain";
+import * as SecureStore from "expo-secure-store";
 
-const TOKEN_KEY = 'subtrack_auth_token';
-const USER_KEY = 'subtrack_user_data';
+const TOKEN_KEY = "subtrack_auth_token";
+const USER_KEY = "subtrack_user_data";
 
 /**
  * Stored user information — the same shape returned by the api `/auth/login`
  * endpoint, sourced from the shared `LoginResponseDto` so the wire format and
  * the mobile cache stay in lockstep.
  */
-export type StoredUser = LoginResponseDto['user'];
+export type StoredUser = LoginResponseDto["user"];
 
 /**
  * ApiClient — the ONLY place that makes HTTP calls.
@@ -19,7 +19,7 @@ export type StoredUser = LoginResponseDto['user'];
 export class ApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://10.0.2.2:3000') {
+  constructor(baseUrl: string = "http://192.168.0.106:3000") {
     this.baseUrl = baseUrl;
   }
 
@@ -66,51 +66,61 @@ export class ApiClient {
    * Login — the only public API call besides sync.
    */
   async login(email: string, password: string): Promise<LoginResponseDto> {
-    const response = await fetch(`${this.baseUrl}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        const error = await response
+          .json()
+          .catch(() => ({ message: "Login failed" }));
+        throw new Error(
+          (error as { message?: string }).message ?? "Login failed",
+        );
+      }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Login failed' }));
-      throw new Error((error as { message?: string }).message ?? 'Login failed');
+      const data = (await response.json()) as LoginResponseDto;
+
+      // Store token and user
+      await this.setToken(data.accessToken);
+      await this.setUser(data.user);
+
+      return data;
+    } catch (error) {
+      console.log(error);
+      throw new Error();
     }
-
-    const data = await response.json() as LoginResponseDto;
-
-    // Store token and user
-    await this.setToken(data.accessToken);
-    await this.setUser(data.user);
-
-    return data;
   }
 
   /**
    * Send sync batch — the ONLY data sync HTTP call.
    */
-  async syncBatch(operations: Array<{
-    entityType: string;
-    entityId: string;
-    operation: string;
-    payload: Record<string, unknown>;
-    updatedAt: string;
-  }>): Promise<{
+  async syncBatch(
+    operations: Array<{
+      entityType: string;
+      entityId: string;
+      operation: string;
+      payload: Record<string, unknown>;
+      updatedAt: string;
+    }>,
+  ): Promise<{
     results: Array<{
       entityId: string;
-      status: 'SUCCESS' | 'CONFLICT' | 'ERROR';
+      status: "SUCCESS" | "CONFLICT" | "ERROR";
       serverVersion?: Record<string, unknown>;
       error?: string;
     }>;
   }> {
     const token = await this.getToken();
-    if (!token) throw new Error('Not authenticated');
+    if (!token) throw new Error("Not authenticated");
 
     const response = await fetch(`${this.baseUrl}/sync/batch`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ operations }),
     });
@@ -118,7 +128,7 @@ export class ApiClient {
     if (!response.ok) {
       if (response.status === 401) {
         await this.clearToken();
-        throw new Error('Session expired. Please login again.');
+        throw new Error("Session expired. Please login again.");
       }
       throw new Error(`Sync failed with status ${response.status}`);
     }
@@ -126,7 +136,7 @@ export class ApiClient {
     return response.json() as Promise<{
       results: Array<{
         entityId: string;
-        status: 'SUCCESS' | 'CONFLICT' | 'ERROR';
+        status: "SUCCESS" | "CONFLICT" | "ERROR";
         serverVersion?: Record<string, unknown>;
         error?: string;
       }>;
@@ -140,20 +150,24 @@ export class ApiClient {
    * JSON is not validated at runtime, so this is a structural assertion the
    * caller is responsible for matching to the api wire format.
    */
-  async fetchEntities<T = Record<string, unknown>>(entityType: string): Promise<T[]> {
+  async fetchEntities<T = Record<string, unknown>>(
+    entityType: string,
+  ): Promise<T[]> {
     const token = await this.getToken();
-    if (!token) throw new Error('Not authenticated');
+    if (!token) throw new Error("Not authenticated");
 
     const response = await fetch(`${this.baseUrl}/${entityType}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
+
+    console.log(response);
 
     if (!response.ok) {
       if (response.status === 401) {
         await this.clearToken();
-        throw new Error('Session expired. Please login again.');
+        throw new Error("Session expired. Please login again.");
       }
       throw new Error(`Failed to fetch ${entityType}`);
     }

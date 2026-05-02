@@ -7,50 +7,50 @@ async function main() {
   console.warn('🌱 Seeding database...');
 
   const tenant = await prisma.tenant.upsert({
-    where: { id: 'demo-tenant-001' },
+    where: { id: '1' },
     update: {},
     create: {
-      id: 'demo-tenant-001',
-      companyName: 'Demo Generator Co.',
+      id: '1',
+      companyName: 'Generator',
     },
   });
   console.warn(`✅ Tenant: ${tenant.companyName} (${tenant.id})`);
 
-  const passwordHash = await bcrypt.hash('admin123', 12);
+  const passwordHash = await bcrypt.hash('admin123$', 12);
   const admin = await prisma.user.upsert({
-    where: { id: 'demo-admin-001' },
+    where: { id: '1' },
     update: {},
     create: {
-      id: 'demo-admin-001',
+      id: '1',
       tenantId: tenant.id,
       email: 'admin@demo.com',
       passwordHash,
-      name: 'Admin User',
+      name: 'Admin',
       role: 'TENANT_ADMIN',
     },
   });
-  console.warn(`✅ Admin: ${admin.email} (password: admin123)`);
+  console.warn(`✅ Admin: ${admin.email} (password: admin123$)`);
 
-  const opPasswordHash = await bcrypt.hash('operator123', 12);
+  const opPasswordHash = await bcrypt.hash('operator123$', 12);
   const operator = await prisma.user.upsert({
-    where: { id: 'demo-operator-001' },
+    where: { id: '2' },
     update: {},
     create: {
-      id: 'demo-operator-001',
+      id: '2',
       tenantId: tenant.id,
       email: 'operator@demo.com',
       passwordHash: opPasswordHash,
-      name: 'Field Operator',
+      name: 'Operator',
       role: 'OPERATOR',
     },
   });
-  console.warn(`✅ Operator: ${operator.email} (password: operator123)`);
+  console.warn(`✅ Operator: ${operator.email} (password: operator123$)`);
 
   const fixedRule = await prisma.pricingRule.upsert({
-    where: { id: 'demo-pricing-fixed-001' },
+    where: { id: '1' },
     update: {},
     create: {
-      id: 'demo-pricing-fixed-001',
+      id: '1',
       tenantId: tenant.id,
       name: 'Standard Monthly',
       type: 'FIXED',
@@ -60,10 +60,10 @@ async function main() {
   console.warn(`✅ Pricing rule: ${fixedRule.name}`);
 
   const ampereRule = await prisma.pricingRule.upsert({
-    where: { id: 'demo-pricing-ampere-001' },
+    where: { id: '2' },
     update: {},
     create: {
-      id: 'demo-pricing-ampere-001',
+      id: '2',
       tenantId: tenant.id,
       name: 'Ampere-Based Plan',
       type: 'AMPERE_BASED',
@@ -74,10 +74,10 @@ async function main() {
   console.warn(`✅ Pricing rule: ${ampereRule.name}`);
 
   const customer1 = await prisma.customer.upsert({
-    where: { id: 'demo-customer-001' },
+    where: { id: '1' },
     update: {},
     create: {
-      id: 'demo-customer-001',
+      id: '1',
       tenantId: tenant.id,
       name: 'Ahmed Electronics',
       phone: '+201234567890',
@@ -91,10 +91,10 @@ async function main() {
   console.warn(`✅ Customer: ${customer1.name}`);
 
   const customer2 = await prisma.customer.upsert({
-    where: { id: 'demo-customer-002' },
+    where: { id: '2' },
     update: {},
     create: {
-      id: 'demo-customer-002',
+      id: '2',
       tenantId: tenant.id,
       name: 'Cairo Factory Hub',
       phone: '+201098765432',
@@ -108,7 +108,7 @@ async function main() {
     where: { id: 'demo-sub-001' },
     update: {},
     create: {
-      id: 'demo-sub-001',
+      id: '1',
       tenantId: tenant.id,
       customerId: customer1.id,
       planName: 'Standard Monthly Plan',
@@ -120,10 +120,10 @@ async function main() {
   console.warn(`✅ Subscription: ${sub1.planName} for ${customer1.name}`);
 
   const sub2 = await prisma.subscription.upsert({
-    where: { id: 'demo-sub-002' },
+    where: { id: '2' },
     update: {},
     create: {
-      id: 'demo-sub-002',
+      id: '2',
       tenantId: tenant.id,
       customerId: customer2.id,
       planName: 'Industrial Ampere Plan',

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { CustomerService } from '../application/customer.service';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
@@ -18,7 +27,10 @@ export class CustomersController {
 
   @Post()
   @Roles(UserRole.TENANT_ADMIN, UserRole.MANAGER, UserRole.OPERATOR)
-  create(@CurrentUser() user: any, @Body() createCustomerDto: CreateCustomerDto) {
+  create(
+    @CurrentUser() user: any,
+    @Body() createCustomerDto: CreateCustomerDto,
+  ) {
     return this.customerService.create(user.tenantId, createCustomerDto);
   }
 

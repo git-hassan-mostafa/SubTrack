@@ -2,6 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../../../infrastructure/database/prisma.service';
+import { JwtPayload } from 'src/domain';
+import { User, UserRole } from '@prisma/client';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -9,25 +11,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'super-secret',
+      secretOrKey: process.env.JWT_SECRET || 'default-dev-secret',
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload) {
     const user = await this.prisma.user.findUnique({
       where: { id: payload.userId },
     });
 
-    if (!user || (!user.isActive && payload.role !== 'SYSTEM_ADMIN')) {
+    if (!user || (!user.isActive && payload.role !== UserRole.TENANT_ADMIN)) {
       throw new UnauthorizedException('User is not active');
     }
-
-    return {
-      id: user.id,
-      tenantId: user.tenantId,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-    };
+    return user as User;
   }
 }
